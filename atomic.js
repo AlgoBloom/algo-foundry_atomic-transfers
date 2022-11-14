@@ -44,11 +44,26 @@ const submitAtomicTransfer = () => {
 
   };
 
+
+  txnArrayId = [tx1, tx2, tx3, tx4];
+
+  // here the array has an Id attached to it
+  
+  
+  // here we sign the transactions
+  txn1Signed = tx1.signedTxn(creator.sk);
+  txn2Signed = txn2.signedTxn(creator.sk);
+  txn3Signed = txn3.signedTxn(creator.sk);
+  txn4Signed = txn4.signedTxn(creator.sk);
+  
+  // now we create an array of signed transactions
+  txnSignedArray = [];
+  
+  const submitAtomic = submitToNetwork(txnSignedArray);
+
+  return submitAtomic;
+
 };
-
-txnArray = [tx1, tx2, tx3, tx4];
-
-
 
 
 (async () => {  
