@@ -57,13 +57,13 @@ const getCreatedAsset = async (account, assetId) => {
   return asset;
 };
 
-const submitAtomicTransfer = async () => {
+const submitAtomicTransfer = async (assetId) => {
   try {
     const paymentAmount = 1000000; // 1 algo
     const feeAmount = paymentAmount * 0.1; 
     const sugParams = await algodClient.getTransactionParams().do();
     // 1. Buyer account pays 1 Algo to the creator.
-    const tx1 = algosdk.makePaymentTxnWithSuggestedParams(
+    let txn1 = algosdk.makePaymentTxnWithSuggestedParams(
       receiver.addr, // receiver sends
       creator.addr, // creator receives
       paymentAmount, // 1 algo
@@ -74,7 +74,7 @@ const submitAtomicTransfer = async () => {
     );
 
     // 2. Buyer opts into the asset. 
-    let tx2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    let txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
       receiver.addr,
       receiver.addr,
       undefined,
@@ -87,7 +87,7 @@ const submitAtomicTransfer = async () => {
     );
 
     // 3. Creator sends the NFT to the buyer.
-    let tx3 = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    let txn3 = algosdk.makeAssetTransferTxnWithSuggestedParams(
       creator.addr,
       receiver.addr,
       undefined,
@@ -100,7 +100,7 @@ const submitAtomicTransfer = async () => {
     );
 
     // 4. Creator sends 10% of the payment to the artist's account.
-    let tx4 = algosdk.makePaymentTxnWithSuggestedParams(
+    let txn4 = algosdk.makePaymentTxnWithSuggestedParams(
       creator.addr,
       artist.addr,
       feeAmount,
@@ -111,7 +111,7 @@ const submitAtomicTransfer = async () => {
     );
 
     // put unsigned transactions in an array to be id'ed
-    let txnArrayId = [tx1, tx2, tx3, tx4];
+    let txnArrayId = [txn1, txn2, txn3, txn4];
     // here the array has an Id attached to it 
     let txnGroup = algosdk.assignGroupID(txnArrayId);
     
@@ -142,9 +142,11 @@ const submitAtomicTransfer = async () => {
 
 (async () => {  
     console.log("Creating NFT!");
-    const assetId = await createNFT().catch(console.error);
+    let assetId = await createNFT().catch(console.error);
+    console.log("Fetching NFT info!")
+    let assetInfo = await getCreatedAsset(creator, assetId);
     console.log("Here is the NFT information!");
-    await getCreatedAsset(creator, assetId);
+    console.log(assetInfo);
     console.log("Submitting atomic transfer!");
     await submitAtomicTransfer(assetId);
     console.log("Atomic transfer complete!");
