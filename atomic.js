@@ -58,22 +58,33 @@ const getCreatedAsset = async (account, assetId) => {
 
 const submitAtomicTransfer = async () => {
   try {
+    const sugParams = await algodClient.getTransactionParams().do();
     // 1. Buyer account pays 1 Algo to the creator.
-    const tx1 = (assetId) => {
-      const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    const tx1 = (sugParams) => {
+      const txn = algosdk.makePaymentTxnWithSuggestedParams(
           receiver.addr, // receiver sends
           creator.addr, // creator receives
+          1000000, // 1 algo
           undefined,
           undefined,
-          1000000,
-          undefined,
-          assetId
+          sugParams,
+          undefined
       );
     };
 
     // 2. Buyer opts into the asset. 
-    const tx2 = () => {
-
+    const tx2 = (assetId, sugParams) => {
+      const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+          receiver.addr,
+          receiver.addr,
+          undefined,
+          undefined,
+          0,
+          undefined,
+          assetId,
+          sugParams,
+          undefined
+      );
     };
 
     // 3. Creator sends the NFT to the buyer.
