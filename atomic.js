@@ -116,10 +116,10 @@ const submitAtomicTransfer = async (assetId) => {
     let txnGroup = algosdk.assignGroupID(txnArrayId);
     
     // here we sign the transactions
-    let txn1Signed = txn1.signedTxn(creator.sk);
-    let txn2Signed = txn2.signedTxn(creator.sk);
-    let txn3Signed = txn3.signedTxn(creator.sk);
-    let txn4Signed = txn4.signedTxn(creator.sk);
+    let txn1Signed = txn1.signTxn(creator.sk);
+    let txn2Signed = txn2.signTxn(creator.sk);
+    let txn3Signed = txn3.signTxn(creator.sk);
+    let txn4Signed = txn4.signTxn(creator.sk);
     
     // now we create an array of signed transactions
     let txnSignedArray = [];
