@@ -7,6 +7,7 @@ const algodClient = new algosdk.Algodv2(
 );
 
 const creator = algosdk.mnemonicToSecretKey(process.env.MNEMONIC_CREATOR);
+const receiver = algosdk.mnemonicToSecretKey(process.env.MNEMONIC_RECEIVER);
 
 const submitToNetwork = async (signedTxn) => {
   let tx = await algodClient.sendRawTransaction(signedTxn).do();
@@ -44,7 +45,15 @@ const createNFT = async () => {
   );
   const signTxn = txn.signTxn(creator.sk);
   const confirmedTxn = await submitToNetwork(signTxn);
-  return 
+  return confirmedTxn["asset-index"];
+};
+
+const getCreatedAsset = async (account, assetId) => {
+  let accountInfo = await algodClient.accountInformation(account.addr).do();
+  const asset = accountInfo["created-assets"].find((asset) => {
+    return asset["index"] === assetId;
+  });
+  return asset;
 };
 
 const submitAtomicTransfer = async () => {
@@ -109,8 +118,10 @@ const submitAtomicTransfer = async () => {
 
 (async () => {  
     console.log("Creating NFT!");
-    createNFT();
+    const assetId = await createNFT().catch(console.error);
+    console.log("Here is the NFT information!");
+    await getCreatedAsset(creator, assetId);
     console.log("Submitting atomic transfer!");
-    submitAtomicTransfer(assetId);
+    await submitAtomicTransfer(assetId);
     console.log("Atomic transfer complete!");
 })();
