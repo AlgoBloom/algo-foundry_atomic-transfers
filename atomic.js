@@ -8,6 +8,7 @@ const algodClient = new algosdk.Algodv2(
 
 const creator = algosdk.mnemonicToSecretKey(process.env.MNEMONIC_CREATOR);
 const receiver = algosdk.mnemonicToSecretKey(process.env.MNEMONIC_RECEIVER);
+const artist = algosdk.mnemonicToSecretKey(process.env.MNEMONIC_ARTIST);
 
 const submitToNetwork = async (signedTxn) => {
   let tx = await algodClient.sendRawTransaction(signedTxn).do();
@@ -58,12 +59,14 @@ const getCreatedAsset = async (account, assetId) => {
 
 const submitAtomicTransfer = async () => {
   try {
+    const paymentAmount = 1000000; // 1 algo
+    const feeAmount = paymentAmount * 0.1; 
     const sugParams = await algodClient.getTransactionParams().do();
     // 1. Buyer account pays 1 Algo to the creator.
     const tx1 = algosdk.makePaymentTxnWithSuggestedParams(
       receiver.addr, // receiver sends
       creator.addr, // creator receives
-      1000000, // 1 algo
+      paymentAmount, // 1 algo
       undefined,
       undefined,
       sugParams,
@@ -97,9 +100,15 @@ const submitAtomicTransfer = async () => {
     );
 
     // 4. Creator sends 10% of the payment to the artist's account.
-    const tx4 = () => {
-
-    };
+    let tx4 = algosdk.makePaymentTxnWithSuggestedParams(
+      creator.addr,
+      artist.addr,
+      feeAmount,
+      undefined,
+      undefined,
+      sugParams,
+      undefined,
+    );
 
     // put unsigned transactions in an array to be id'ed
     let txnArrayId = [tx1, tx2, tx3, tx4];
