@@ -85,7 +85,15 @@ const submitAtomicTransfer = async () => {
 
     // 3. Creator sends the NFT to the buyer.
     let tx3 = algosdk.makeAssetTransferTxnWithSuggestedParams(
-
+      creator.addr,
+      receiver.addr,
+      undefined,
+      undefined,
+      1,
+      undefined,
+      assetId,
+      sugParams,
+      undefined,
     );
 
     // 4. Creator sends 10% of the payment to the artist's account.
